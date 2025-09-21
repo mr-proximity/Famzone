@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> FamZone</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: url('fam.png') center center/cover no-repeat fixed;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+            padding: 10px;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 10px;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            font-size: clamp(1.8rem, 5vw, 2.8rem);
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+            padding: 10px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            padding: 10px 0;
+            max-width: 100%;
+        }
+
+        .profile-card {
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 140px;
+        }
+
+        .profile-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+        }
+
+        .profile-name {
+            font-size: clamp(1.3rem, 3vw, 1.6rem);
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 12px;
+            text-transform: capitalize;
+            line-height: 1.2;
+        }
+
+        .timezone-info {
+            color: #666;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+            margin-bottom: 8px;
+        }
+
+        .current-time {
+            font-size: clamp(1.1rem, 3vw, 1.3rem);
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 6px;
+        }
+
+        .current-date {
+            font-size: clamp(0.9rem, 2.5vw, 1rem);
+            color: #764ba2;
+        }
+
+        .no-timezone {
+            color: #999;
+            font-style: italic;
+            margin-top: 8px;
+            font-size: clamp(0.85rem, 2.5vw, 0.95rem);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .has-timezone {
+            background-color: #4CAF50;
+        }
+
+        .no-timezone-indicator {
+            background-color: #ff9800;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+            
+            .container {
+                padding: 0 5px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .profile-card {
+                padding: 15px;
+                min-height: 120px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+            
+            .profile-card {
+                padding: 12px;
+                min-height: 110px;
+            }
+            
+            .grid {
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 320px) {
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .profile-card {
+                padding: 10px;
+                min-height: 100px;
+            }
+        }
+
+        /* Large screens optimization */
+        @media (min-width: 1400px) {
+            .grid {
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 20px;
+            }
+            
+            body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1> FamZone </h1>
+        <div class="grid" id="profileGrid">
+            <!-- Profiles will be populated by JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        const profiles = [
+            { name: 'proxy', timezone: 'Asia/Kolkata' },
+            { name: 'worlds', timezone: 'America/New_York' },
+            { name: 'meimei', timezone: 'Asia/Manila' },
+            { name: 'zuzumaxine', timezone: 'America/New_York' },
+            { name: 'Myr', timezone: 'Europe/Madrid' },
+            { name: 'Nasseh', timezone: 'Europe/Berlin' },
+            { name: 'NootNoot', timezone: 'Europe/Paris' },
+            { name: 'Zuzy', timezone: 'America/Los_Angeles' },
+            { name: 'Guac', timezone: 'America/Denver' },
+            { name: 'judas', timezone: null },
+            { name: 'jester', timezone: null }
+        ];
+
+        function updateTimes() {
+            const grid = document.getElementById('profileGrid');
+            grid.innerHTML = '';
+
+            profiles.forEach(profile => {
+                const card = document.createElement('div');
+                card.className = 'profile-card';
+
+                if (profile.timezone) {
+                    const now = new Date();
+                    const timeOptions = {
+                        timeZone: profile.timezone,
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: true
+                    };
+                    const dateOptions = {
+                        timeZone: profile.timezone,
+                        weekday: 'long',
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                    };
+
+                    const currentTime = now.toLocaleTimeString('en-US', timeOptions);
+                    const currentDate = now.toLocaleDateString('en-US', dateOptions);
+                    
+                    // Get timezone abbreviation
+                    const timezoneAbbr = getTimezoneAbbreviation(profile.timezone);
+
+                    card.innerHTML = `
+                        <div class="profile-name">
+                            <span class="status-indicator has-timezone"></span>
+                            ${profile.name}
+                        </div>
+                        <div class="timezone-info">${timezoneAbbr}</div>
+                        <div class="current-time">${currentTime}</div>
+                        <div class="current-date">${currentDate}</div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        <div class="profile-name">
+                            <span class="status-indicator no-timezone-indicator"></span>
+                            ${profile.name}
+                        </div>
+                        <div class="no-timezone">Timezone not submitted yet</div>
+                    `;
+                }
+
+                grid.appendChild(card);
+            });
+        }
+
+        function getTimezoneAbbreviation(timezone) {
+            const timezoneMap = {
+                'Asia/Kolkata': 'IST (UTC+5:30)',
+                'America/New_York': 'EST/EDT (UTC-5/-4)',
+                'Asia/Manila': 'PHT (UTC+8)',
+                'Europe/Madrid': 'CET/CEST (UTC+1/+2)',
+                'Europe/Berlin': 'CET/CEST (UTC+1/+2)',
+                'Europe/Paris': 'CET/CEST (UTC+1/+2)',
+                'America/Los_Angeles': 'PST/PDT (UTC-8/-7)',
+                'America/Denver': 'MST/MDT (UTC-7/-6)'
+            };
+            return timezoneMap[timezone] || timezone;
+        }
+
+        // Update times immediately and then every second
+        updateTimes();
+        setInterval(updateTimes, 1000);
+    </script>
+</body>
+</html>
