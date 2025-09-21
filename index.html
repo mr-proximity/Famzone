@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> FamZone</title>
+    <title>FamZone</title>
     <style>
         * {
             margin: 0;
@@ -39,13 +39,85 @@
             padding: 0 10px;
         }
 
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
         h1 {
-            text-align: center;
             color: white;
             font-size: clamp(1.8rem, 5vw, 2.8rem);
-            margin-bottom: 20px;
+            margin: 0;
             text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
-            padding: 10px;
+        }
+
+        .time-format-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 10px 15px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .toggle-label {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.3);
+            transition: 0.3s;
+            border-radius: 26px;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider {
+            background-color: #667eea;
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(24px);
         }
 
         .grid {
@@ -143,6 +215,11 @@
                 padding: 0 5px;
             }
             
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
             .grid {
                 grid-template-columns: 1fr;
                 gap: 12px;
@@ -196,13 +273,25 @@
 </head>
 <body>
     <div class="container">
-        <h1> FamZone </h1>
+        <div class="header">
+            <h1>FamZone</h1>
+            <div class="time-format-toggle">
+                <span class="toggle-label">12h</span>
+                <label class="switch">
+                    <input type="checkbox" id="timeFormatToggle">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label">24h</span>
+            </div>
+        </div>
         <div class="grid" id="profileGrid">
             <!-- Profiles will be populated by JavaScript -->
         </div>
     </div>
 
     <script>
+        let is24HourFormat = false;
+
         const profiles = [
             { name: 'proxy', timezone: 'Asia/Kolkata' },
             { name: 'worlds', timezone: 'America/New_York' },
@@ -214,7 +303,7 @@
             { name: 'Zuzy', timezone: 'America/Los_Angeles' },
             { name: 'Guac', timezone: 'America/Denver' },
             { name: 'judas', timezone: null },
-            { name: 'jester', timezone: null }
+            { name: 'jester', timezone: 'Europe/London' }
         ];
 
         function updateTimes() {
@@ -232,7 +321,7 @@
                         hour: '2-digit',
                         minute: '2-digit',
                         second: '2-digit',
-                        hour12: true
+                        hour12: !is24HourFormat
                     };
                     const dateOptions = {
                         timeZone: profile.timezone,
@@ -280,10 +369,18 @@
                 'Europe/Berlin': 'CET/CEST (UTC+1/+2)',
                 'Europe/Paris': 'CET/CEST (UTC+1/+2)',
                 'America/Los_Angeles': 'PST/PDT (UTC-8/-7)',
-                'America/Denver': 'MST/MDT (UTC-7/-6)'
+                'America/Denver': 'MST/MDT (UTC-7/-6)',
+                'Europe/London': 'GMT/BST (UTC+0/+1)'
             };
             return timezoneMap[timezone] || timezone;
         }
+
+        // Toggle time format functionality
+        const timeFormatToggle = document.getElementById('timeFormatToggle');
+        timeFormatToggle.addEventListener('change', function() {
+            is24HourFormat = this.checked;
+            updateTimes();
+        });
 
         // Update times immediately and then every second
         updateTimes();
